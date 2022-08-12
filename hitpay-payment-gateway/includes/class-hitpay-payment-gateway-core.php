@@ -57,16 +57,16 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         /**
          * Applying all the options from the Settings page to the instance.
          */
-        $this->enabled      =           $this->get_option( 'enabled' );
-        $this->title        =           $this->get_option( 'title' );
-        $this->description  =           $this->get_option( 'description' );
-        $this->live_mode    =           $this->get_option( 'live_mode' );
-        $this->api_key      =           $this->get_option( 'api_key' );
-        $this->api_salt     =           $this->get_option( 'api_salt' );
-        $this->payment_logos =          $this->get_option( 'payment_logos' );
-        $this->status_after_payment =   $this->get_option( 'status_after_payment' );
-        $this->payment_link_expires =   $this->get_option( 'payment_link_expires' );
-        $this->payment_link_ttl =       $this->get_option( 'payment_link_ttl' );
+        $this->enabled              = $this->get_option( 'enabled' );
+        $this->title                = $this->get_option( 'title' );
+        $this->description          = $this->get_option( 'description' );
+        $this->live_mode            = $this->get_option( 'live_mode' );
+        $this->api_key              = $this->get_option( 'api_key' );
+        $this->api_salt             = $this->get_option( 'api_salt' );
+        $this->payment_logos        = $this->get_option( 'payment_logos' );
+        $this->status_after_payment = $this->get_option( 'status_after_payment' );
+        $this->payment_link_expires = $this->get_option( 'payment_link_expires' );
+        $this->payment_link_ttl     = $this->get_option( 'payment_link_ttl' );
     }
 
     /**
@@ -95,6 +95,11 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         ];
     }
 
+    /**
+     * Initialise settings form fields.
+     *
+     * Add an array of fields to be displayed on the gateway's settings screen.
+     */
     public function init_form_fields() {
 
         $this->form_fields =[
@@ -141,6 +146,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             'payment_logos' => [
                 'title'         => __( 'Payment Logos', 'hitpay-payment-gateway' ),
                 'type'          => 'multiselect',
+                'class'         => 'wc-enhanced-select',
                 'description'   => __( 'Activate payment methods in the HitPay dashboard under Settings > Payment Gateway > Integrations.', 'hitpay-payment-gateway' ),
                 'css'           => 'height: 10rem',
                 'options'       => [
@@ -177,6 +183,36 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
                 'description'   => __( 'Minimum value is 5. Maximum is 1000.', 'hitpay-payment-gateway' ),
             ],
         ];
+    }
+
+    /**
+     * Load JS for the Settings page.
+     *
+     * We have special behaviour with the form on the Settings page:
+     * we hide one field and show it when a user clicks a checkbox.
+     * Here we are loading JS for this functionality.
+     *
+     * @return void
+     */
+    public function admin_options()
+    {
+        /**
+         * Output the gateway settings screen.
+         */
+        parent::admin_options();
+
+        /**
+         * Loading "settings-page.js".
+         */
+        wp_enqueue_script(
+            'hitpay-settings-page',
+            plugin_dir_url( __DIR__ ) . 'admin/js/settings-page.js',
+            ['jquery']
+        );
+
+        wp_localize_script('hitpay-settings-page', 'app', [
+            'paymentLinkExpires'  => (bool) $this->get_option('payment_link_expires'),
+        ]);
     }
 
     /**
