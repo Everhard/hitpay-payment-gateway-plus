@@ -178,7 +178,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
                 'default'       => 'no',
             ],
             'payment_link_ttl' => [
-                'title'         => __( 'Expire after [x] mins', 'hitpay-payment-gateway' ),
+                'title'         => __( 'Expire after [x] min', 'hitpay-payment-gateway' ),
                 'type'          => 'text',
                 'description'   => __( 'Minimum value is 5. Maximum is 1000.', 'hitpay-payment-gateway' ),
             ],
@@ -213,6 +213,42 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         wp_localize_script('hitpay-settings-page', 'app', [
             'paymentLinkExpires'  => (bool) $this->get_option('payment_link_expires'),
         ]);
+    }
+
+    /**
+     * Validate admin options.
+     *
+     * @param $settings
+     * @return array
+     */
+    public function validate_options( $settings ) {
+
+        $errors = [];
+
+        if ( ! $settings[ 'api_key' ] || ! $settings[ 'api_salt' ] ) {
+            $errors[] = __( 'Please enter HitPay API Key and Salt.', 'hitpay-payment-gateway' );
+        }
+
+        if ( 'yes' == $settings[ 'payment_link_expires' ]) {
+
+            if ( ! $settings[ 'payment_link_ttl' ] ) {
+                $errors[] = __( 'Please enter "Expire after [x] min" value.', 'hitpay-payment-gateway' );
+            }
+
+            if ( $settings[ 'payment_link_ttl' ] &&  $settings[ 'payment_link_ttl' ] < 5 ) {
+                $errors[] = __( 'Value for "Expire after [x] min" should not be less 5.', 'hitpay-payment-gateway' );
+            }
+
+            if ( $settings[ 'payment_link_ttl' ] &&  $settings[ 'payment_link_ttl' ] > 1000 ) {
+                $errors[] = __( 'Value for "Expire after [x] min" should not be more 1000.', 'hitpay-payment-gateway' );
+            }
+        }
+
+        foreach ( $errors as $error ) {
+            WC_Admin_Settings::add_error( $error );
+        }
+
+        return $settings;
     }
 
     /**
