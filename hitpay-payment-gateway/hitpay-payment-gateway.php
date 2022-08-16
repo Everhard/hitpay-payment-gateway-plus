@@ -77,15 +77,15 @@ function initiate_hitpay_payment_gateway() {
              * Validating admin options.
              * Adding an action for the "woocommerce_settings_api_sanitized_fields_{ID}" hook.
              */
-            add_action('woocommerce_settings_api_sanitized_fields_' . $this->gateway->id,
-                [$this->gateway, 'validate_options']);
+            add_action( 'woocommerce_settings_api_sanitized_fields_' . $this->gateway->id,
+                [ $this->gateway, 'validate_options' ] );
 
             /**
              * Saving admin options.
              * Adding an action for the "woocommerce_update_options_payment_gateways_{ID}" hook.
              */
-            add_action('woocommerce_update_options_payment_gateways_' . $this->gateway->id,
-                [$this->gateway, 'process_admin_options']);
+            add_action( 'woocommerce_update_options_payment_gateways_' . $this->gateway->id,
+                [ $this->gateway, 'process_admin_options' ] ) ;
 
         }
 
@@ -104,6 +104,10 @@ function initiate_hitpay_payment_gateway() {
          * @return void
          */
         private function load_dependencies() {
+
+            require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-gateway-api.php';
+
+            require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-payment-request.php';
 
             require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-payment-gateway-core.php';
 

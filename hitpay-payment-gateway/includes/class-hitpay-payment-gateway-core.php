@@ -20,7 +20,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
          *
          * @var array
          */
-        $this->supports = ['products'];
+        $this->supports = [ 'products' ];
 
         /**
          * Icon for the gateway.
@@ -87,11 +87,33 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 
         $order = wc_get_order( $order_id );
 
+        $customer_full_name = $order->get_billing_first_name() . ' '
+            . $order->get_billing_last_name();
+
+        $gateway_api = new HitPay_Gateway_API(
+            $this->get_option( 'api_key' ),
+            $this->get_option( 'api_salt' )
+        );
+
+        $payment_request = new HitPay_Payment_Request( $gateway_api );
+
+        $response = $payment_request
+            ->set_amount( $order->get_total() )
+            ->set_currency( $order->get_currency() )
+            ->set_name( $customer_full_name )
+            ->set_email( $order->get_billing_email() )
+            ->set_purpose( get_bloginfo() )
+            ->set_reference_number( $order->get_order_number() )
+            ->set_redirect_url( $this->get_return_url( $order ) )
+            ->create();
+
+        $redirect_url = $response ? $response->url : $this->get_return_url( $order );
+
         WC()->cart->empty_cart();
 
         return [
             'result'    => 'success',
-            'redirect'  => $this->get_return_url( $order ),
+            'redirect'  => $redirect_url,
         ];
     }
 
@@ -207,12 +229,12 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         wp_enqueue_script(
             'hitpay-settings-page',
             plugin_dir_url( __DIR__ ) . 'admin/js/settings-page.js',
-            ['jquery']
+            [ 'jquery' ]
         );
 
-        wp_localize_script('hitpay-settings-page', 'app', [
-            'paymentLinkExpires'  => (bool) $this->get_option('payment_link_expires'),
-        ]);
+        wp_localize_script( 'hitpay-settings-page', 'app', [
+            'paymentLinkExpires'  => ( bool ) $this->get_option( 'payment_link_expires' ),
+        ] );
     }
 
     /**
@@ -229,7 +251,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             $errors[] = __( 'Please enter HitPay API Key and Salt.', 'hitpay-payment-gateway' );
         }
 
-        if ( 'yes' == $settings[ 'payment_link_expires' ]) {
+        if ( 'yes' == $settings[ 'payment_link_expires' ] ) {
 
             if ( ! $settings[ 'payment_link_ttl' ] ) {
                 $errors[] = __( 'Please enter "Expire after [x] min" value.', 'hitpay-payment-gateway' );
@@ -268,7 +290,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 
         foreach ( wc_get_order_statuses() as $slug => $text ) {
             if ( ! in_array( $slug, $skipped_order_statuses) ) {
-                $order_statuses[$slug] = $text;
+                $order_statuses[ $slug ] = $text;
             }
         }
 
