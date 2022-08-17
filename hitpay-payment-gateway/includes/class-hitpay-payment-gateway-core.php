@@ -20,7 +20,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
          *
          * @var array
          */
-        $this->supports = [ 'products' ];
+        $this->supports = [ 'products', 'refunds' ];
 
         /**
          * Icon for the gateway.
@@ -144,6 +144,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
          * Check if necessary parameters are specified:
          */
         if ( empty( $data[ 'reference_number' ] ) ||
+             empty( $data[ 'payment_id' ] ) ||
              empty( $data[ 'payment_request_id' ] ) ||
              empty( $data[ 'status' ] ) ||
              empty( $data[ 'hmac' ] )
@@ -171,12 +172,67 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         }
 
         if ( 'completed' == $data[ 'status' ] ) {
+
+            /**
+             * We need this meta for refunds processing.
+             */
+            $order->add_meta_data( '_hitpay_payment_id', $data[ 'payment_id' ], true );
+
             $order->payment_complete();
         }
 
         if ( 'failed' == $data[ 'status' ] ) {
             $order->update_status( 'failed' );
         }
+    }
+
+    /**
+     * Process refund.
+     *
+     * If the gateway declares 'refunds' support, this will allow it to refund.
+     * a passed in amount.
+     *
+     * @param  int        $order_id Order ID.
+     * @param  float|null $amount   Refund amount.
+     * @param  string     $reason   Refund reason.
+     * @return boolean              True or false based on success, or a WP_Error object.
+     */
+    public function process_refund( $order_id, $amount = null, $reason = '' )
+    {
+        $order = wc_get_order( $order_id );
+
+        if ( 0 == $amount || ! $order ) {
+            return false;
+        }
+
+        $payment_id = $order->get_meta( '_hitpay_payment_id' );
+
+        if ( ! $payment_id ) {
+            return false;
+        }
+
+        $gateway_api = new HitPay_Gateway_API(
+            $this->get_option( 'api_key' ),
+            $this->get_option( 'api_salt' )
+        );
+
+        $refund_request = new HitPay_Refund_Request( $gateway_api );
+
+        $response = $refund_request
+            ->set_amount( $amount )
+            ->set_payment_id( $payment_id )
+            ->create();
+
+        if ( ! $response ) {
+            return false;
+        }
+
+        $message = "Refund was successful. Refund reference ID: $response->id. "
+            . "Amount: $response->amount_refunded " . strtoupper( $response->currency ) . '.';
+
+        $order->add_order_note( $message );
+
+        return true;
     }
 
     /**
