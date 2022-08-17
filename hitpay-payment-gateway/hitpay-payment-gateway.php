@@ -87,6 +87,11 @@ function initiate_hitpay_payment_gateway() {
             add_action( 'woocommerce_update_options_payment_gateways_' . $this->gateway->id,
                 [ $this->gateway, 'process_admin_options' ] ) ;
 
+            /**
+             * Adding webhook.
+             */
+            add_action( 'woocommerce_api_hitpay', [ $this->gateway, 'callback_from_gateway_api' ]);
+
         }
 
         /**
@@ -108,6 +113,8 @@ function initiate_hitpay_payment_gateway() {
             require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-gateway-api.php';
 
             require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-payment-request.php';
+
+            require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-security.php';
 
             require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-payment-gateway-core.php';
 

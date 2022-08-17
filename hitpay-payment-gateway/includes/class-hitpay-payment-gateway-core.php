@@ -95,6 +95,8 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             $this->get_option( 'api_salt' )
         );
 
+        $webhook_url = add_query_arg( 'wc-api', 'hitpay', site_url( '/' ) );
+
         $payment_request = new HitPay_Payment_Request( $gateway_api );
 
         $response = $payment_request
@@ -105,16 +107,76 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             ->set_purpose( get_bloginfo() )
             ->set_reference_number( $order->get_order_number() )
             ->set_redirect_url( $this->get_return_url( $order ) )
+            ->set_webhook( $webhook_url )
             ->create();
 
-        $redirect_url = $response ? $response->url : $this->get_return_url( $order );
+        if ( ! $response || $response->status != 'pending' ) {
+            return [ 'result' => 'error' ];
+        }
 
         WC()->cart->empty_cart();
 
         return [
             'result'    => 'success',
-            'redirect'  => $redirect_url,
+            'redirect'  => $response->url,
         ];
+    }
+
+    /**
+     * Callback from HitPay API.
+     *
+     * POST-parameters:
+     * - payment_id
+     * - payment_request_id
+     * - phone
+     * - amount
+     * - currency
+     * - status
+     * - reference_number
+     * - hmac
+     * @return void
+     */
+    public function callback_from_gateway_api() {
+
+        $data = $_POST;
+
+        /**
+         * Check if necessary parameters are specified:
+         */
+        if ( empty( $data[ 'reference_number' ] ) ||
+             empty( $data[ 'payment_request_id' ] ) ||
+             empty( $data[ 'status' ] ) ||
+             empty( $data[ 'hmac' ] )
+           ) {
+             return;
+        }
+
+        $hmac =  $data[ 'hmac' ];
+
+        /**
+         * Remove this key since it shouldn't be a part of analyzing data.
+         */
+        unset( $data[ 'hmac' ] );
+
+        if ( HitPay_Security::get_signature( $this->get_option( 'api_salt' ), $data ) != $hmac ) {
+            return;
+        }
+
+        $order_id = $data[ 'reference_number' ];
+
+        $order = wc_get_order( $order_id );
+
+        if ( ! $order || ! $order->needs_payment() ) {
+            return;
+        }
+
+        if ( 'completed' == $data[ 'status' ] ) {
+            $order->payment_complete();
+        }
+
+        if ( 'failed' == $data[ 'status' ] ) {
+            $order->update_status( 'failed' );
+        }
     }
 
     /**
