@@ -1,3 +1,9 @@
 # HitPay Payment Gateway
-HitPay Payment Gateway Plugin for WooCommerce that allows HitPay merchants to accept 
-PayNow QR, Cards, Apple Pay, Google Pay, WeChatPay, AliPay and GrabPay Payments.
+**HitPay Payment Gateway** plugin for [WooCommerce](https://woocommerce.com). It allows HitPay merchants to accept payments using:
+- PayNow QR.
+- Cards.
+- Apple Pay.
+- Google Pay. 
+- WeChatPay.
+- AliPay.
+- GrabPay.
