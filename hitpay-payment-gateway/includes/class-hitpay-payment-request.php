@@ -72,7 +72,7 @@ class HitPay_Payment_Request {
     /**
      * Webhook URL.
      *
-     * URL where our server do POST request after a payment If done.
+     * URL where our server does a POST request after a payment.
      *
      * @var string
      */
@@ -138,9 +138,9 @@ class HitPay_Payment_Request {
                 'reference_number'          => $this->reference_number,
                 'redirect_url'              => $this->redirect_url,
                 'webhook'                   => $this->webhook,
-                'allow_repeated_payments'   => $this->allow_repeated_payments,
+                'allow_repeated_payments'   => $this->allow_repeated_payments   ? 'true' : '',
                 'expiry_date'               => $this->expiry_date,
-                'send_email'                => $this->send_email,
+                'send_email'                => $this->send_email                ? 'true' : '',
             ],
         ] );
 
@@ -276,6 +276,8 @@ class HitPay_Payment_Request {
     }
 
     /**
+     * Fetch the response data.
+     *
      * @return false|mixed
      */
     private function fetch_response_data() {

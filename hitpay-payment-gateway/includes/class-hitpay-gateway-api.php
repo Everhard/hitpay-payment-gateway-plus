@@ -8,6 +8,8 @@ class HitPay_Gateway_API {
     const ENDPOINT_PREFIX_LIVE     = 'https://api.hit-pay.com/v1/';
     const ENDPOINT_PREFIX_SANDBOX  = 'https://api.sandbox.hit-pay.com/v1/';
 
+    const TIMEZONE = 'Asia/Singapore';
+
     const RESPONSE_CODE_CREATED = 201;
 
     /**

@@ -75,6 +75,8 @@ class HitPay_Refund_Request {
     }
 
     /**
+     * Fetch the response data.
+     *
      * @return false|mixed
      */
     private function fetch_response_data() {

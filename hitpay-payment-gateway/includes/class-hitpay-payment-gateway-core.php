@@ -20,7 +20,20 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
          *
          * @var array
          */
-        $this->supports = [ 'products', 'refunds' ];
+        $this->supports = [
+            'products',
+            'refunds',
+            'subscriptions',
+            'subscription_cancellation',
+            'subscription_suspension',
+            'subscription_reactivation',
+            'subscription_amount_changes',
+            'subscription_date_changes',
+            'multiple_subscriptions',
+            'subscription_payment_method_change',
+            'subscription_payment_method_change_customer',
+            'subscription_payment_method_change_admin',
+        ];
 
         /**
          * Icon for the gateway.
@@ -87,6 +100,30 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 
         $order = wc_get_order( $order_id );
 
+        if ( $this->subscriptions_activated() ) {
+            if ( wcs_order_contains_subscription( $order ) ) {
+                return $this->process_subscription_payment( $order );
+            }
+        }
+
+        return $this->process_regular_payment( $order );
+    }
+
+    /**
+     * Process a regular payment.
+     *
+     * This should return the success and redirect in an array. e.g:
+     *
+     *        return array(
+     *            'result'   => 'success',
+     *            'redirect' => $this->get_return_url( $order )
+     *        );
+     *
+     * @param WC_Order $order Order.
+     * @return array
+     */
+    public function process_regular_payment( WC_Order $order ) {
+
         $customer_full_name = $order->get_billing_first_name() . ' '
             . $order->get_billing_last_name();
 
@@ -111,6 +148,59 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             ->create();
 
         if ( ! $response || $response->status != 'pending' ) {
+            return [ 'result' => 'error' ];
+        }
+
+        WC()->cart->empty_cart();
+
+        return [
+            'result'    => 'success',
+            'redirect'  => $response->url,
+        ];
+    }
+
+    /**
+     * Process a payment for subscriptions (recurring).
+     *
+     * This should return the success and redirect in an array. e.g:
+     *
+     *        return array(
+     *            'result'   => 'success',
+     *            'redirect' => $this->get_return_url( $order )
+     *        );
+     *
+     * @param WC_Order $order
+     * @return array
+     * @throws Exception
+     */
+    public function process_subscription_payment( WC_Order $order ) {
+
+        $gateway_api = new HitPay_Gateway_API(
+            $this->get_option( 'api_key' ),
+            $this->get_option( 'api_salt' )
+        );
+
+        $customer_full_name = $order->get_billing_first_name() . ' '
+            . $order->get_billing_last_name();
+
+        $recurring_billing_request = new HitPay_Recurring_Billing_Request( $gateway_api );
+
+        $subscription_starts_from = new DateTime(
+            'now',
+            new DateTimeZone( HitPay_Gateway_API::TIMEZONE )
+        );
+
+        $response = $recurring_billing_request
+            ->set_amount( $order->get_total() )
+            ->set_reference( $order->get_order_number() )
+            ->set_customer_email( $order->get_billing_email() )
+            ->set_customer_name( $customer_full_name )
+            ->set_start_date( $subscription_starts_from->format( 'Y-m-d' ) )
+            ->set_redirect_url( $this->get_return_url( $order ) )
+            ->set_save_card( true )
+            ->create();
+
+        if ( ! $response || $response->status != 'scheduled' ) {
             return [ 'result' => 'error' ];
         }
 
@@ -389,6 +479,20 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         }
 
         return $settings;
+    }
+
+    /**
+     * Check if the Subscriptions extension is activated.
+     *
+     * @return bool
+     */
+    private function subscriptions_activated() {
+
+        if ( function_exists( 'wcs_order_contains_subscription' ) ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

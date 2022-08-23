@@ -11,7 +11,7 @@
  * Plugin Name:             HitPay Payment Gateway
  * Plugin URI:              https://wordpress.org/plugins/hitpay-payment-gateway/
  * Description:             HitPay Payment Gateway Plugin allows your WooCommerce store to accept PayNow QR, Cards, Apple Pay, Google Pay, WeChatPay, AliPay and GrabPay Payments.
- * Version:                 3.3.0
+ * Version:                 1.0
  * Requires at least:       4.0
  * Tested up to:            5.8.2
  * WC requires at least:    2.4
@@ -19,6 +19,8 @@
  * Requires PHP:            5.5
  * Author:                  HitPay Payment Solutions Pte Ltd
  * Author URI:              https://www.hitpayapp.com
+ * Developer:               Andrew Dorokhov
+ * Developer URI:           https://dorokhov.dev
  * Text Domain:             hitpay-payment-gateway
  * GitHub Plugin URI:       https://github.com/hit-pay/woocommerce
  * GitHub Branch:           master
@@ -115,6 +117,8 @@ function initiate_hitpay_payment_gateway() {
             require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-payment-request.php';
 
             require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-refund-request.php';
+
+            require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-recurring-billing-request.php';
 
             require_once plugin_dir_path( __FILE__ ) . 'includes/class-hitpay-security.php';
 
