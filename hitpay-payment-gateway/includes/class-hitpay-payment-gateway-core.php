@@ -132,7 +132,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             $this->get_option( 'api_salt' )
         );
 
-        $webhook_url = add_query_arg( 'wc-api', 'hitpay', site_url( '/' ) );
+        $webhook_url = add_query_arg( 'wc-api', 'hitpay-regular-payments', site_url( '/' ) );
 
         $payment_request = new HitPay_Payment_Request( $gateway_api );
 
@@ -190,8 +190,11 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             new DateTimeZone( HitPay_Gateway_API::TIMEZONE )
         );
 
+        $webhook_url = add_query_arg( 'wc-api', 'hitpay-recurring-payments', site_url( '/' ) );
+
         $response = $recurring_billing_request
             ->set_amount( $order->get_total() )
+            ->set_webhook( $webhook_url )
             ->set_currency( $order->get_currency() )
             ->set_reference( $order->get_order_number() )
             ->set_customer_email( $order->get_billing_email() )
@@ -214,7 +217,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
     }
 
     /**
-     * Callback from HitPay API.
+     * Handle webhook request for regular payments from HitPay API.
      *
      * POST-parameters:
      * - payment_id
@@ -227,20 +230,23 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
      * - hmac
      * @return void
      */
-    public function callback_from_gateway_api() {
+    public function handle_webhook_regular_payment() {
 
         $data = $_POST;
+
+        $parameters = [
+            'reference_number',
+            'payment_id',
+            'payment_request_id',
+            'status',
+            'hmac',
+        ];
 
         /**
          * Check if necessary parameters are specified:
          */
-        if ( empty( $data[ 'reference_number' ] ) ||
-             empty( $data[ 'payment_id' ] ) ||
-             empty( $data[ 'payment_request_id' ] ) ||
-             empty( $data[ 'status' ] ) ||
-             empty( $data[ 'hmac' ] )
-           ) {
-             return;
+        if ( array_diff_key( array_flip( $parameters ), $data ) ) {
+            return;
         }
 
         $hmac =  $data[ 'hmac' ];
@@ -268,6 +274,80 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
              * We need this meta for refunds processing.
              */
             $order->add_meta_data( '_hitpay_payment_id', $data[ 'payment_id' ], true );
+
+            $order->payment_complete();
+        }
+
+        if ( 'failed' == $data[ 'status' ] ) {
+            $order->update_status( 'failed' );
+        }
+    }
+
+    /**
+     * Handle webhook request for recurring payments from HitPay API.
+     *
+     * POST-parameters:
+     * - payment_id
+     * - recurring_billing_id
+     * - amount
+     * - currency
+     * - status
+     * - reference
+     * - hmac
+     *
+     * @return void
+     */
+    public function handle_webhook_recurring_payment() {
+
+        $data = $_POST;
+
+        $parameters = [
+            'payment_id',
+            'recurring_billing_id',
+            'amount',
+            'currency',
+            'reference',
+            'status',
+            'hmac',
+        ];
+
+        /**
+         * Check if necessary parameters are specified:
+         */
+        if ( array_diff_key( array_flip( $parameters ), $data ) ) {
+            return;
+        }
+
+        $hmac =  $data[ 'hmac' ];
+
+        /**
+         * Remove this key since it shouldn't be a part of analyzing data.
+         */
+        unset( $data[ 'hmac' ] );
+
+        if ( HitPay_Security::get_signature( $this->get_option( 'api_salt' ), $data ) != $hmac ) {
+            return;
+        }
+
+        $order_id = $data[ 'reference' ];
+
+        $order = wc_get_order( $order_id );
+
+        if ( ! $order || ! $order->needs_payment() ) {
+            return;
+        }
+
+        if ( 'succeeded' == $data[ 'status' ] ) {
+
+            /**
+             * We need this meta for refunds processing.
+             */
+            $order->add_meta_data( '_hitpay_payment_id', $data[ 'payment_id' ], true );
+
+            /**
+             * We need this meta for automatic recurring payments.
+             */
+            $order->add_meta_data( '_hitpay_recurring_billing_id', $data[ 'recurring_billing_id' ], true );
 
             $order->payment_complete();
         }

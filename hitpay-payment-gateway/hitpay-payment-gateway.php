@@ -90,9 +90,22 @@ function initiate_hitpay_payment_gateway() {
                 [ $this->gateway, 'process_admin_options' ] ) ;
 
             /**
-             * Adding webhook processing.
+             * Add a handler for webhook requests from HitPay API
+             * It's used for regular payments.
              */
-            add_action( 'woocommerce_api_hitpay', [ $this->gateway, 'callback_from_gateway_api' ]);
+            add_action(
+                'woocommerce_api_hitpay-regular-payments',
+                [ $this->gateway, 'handle_webhook_regular_payment' ]
+            );
+
+            /**
+             * Add a handler for webhook requests from HitPay API
+             * It's used for recurring payments.
+             */
+            add_action(
+                'woocommerce_api_hitpay-recurring-payments',
+                [ $this->gateway, 'handle_webhook_recurring_payment' ]
+            );
 
         }
 
