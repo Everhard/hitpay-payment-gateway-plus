@@ -192,6 +192,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 
         $response = $recurring_billing_request
             ->set_amount( $order->get_total() )
+            ->set_currency( $order->get_currency() )
             ->set_reference( $order->get_order_number() )
             ->set_customer_email( $order->get_billing_email() )
             ->set_customer_name( $customer_full_name )

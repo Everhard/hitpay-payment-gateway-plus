@@ -136,6 +136,7 @@ class HitPay_Recurring_Billing_Request {
                 'redirect_url'          => $this->redirect_url,
                 'reference'             => $this->reference,
                 'amount'                => $this->amount,
+                'currency'              => $this->currency,
                 'webhook'               => $this->webhook,
                 'save_card'             => $this->save_card             ? 'true' : '',
                 'times_to_be_charge'    => $this->times_to_be_charge,
@@ -213,6 +214,16 @@ class HitPay_Recurring_Billing_Request {
     public function set_amount($amount)
     {
         $this->amount = $amount;
+
+        return $this;
+    }
+
+    /**
+     * @param string $currency
+     */
+    public function set_currency($currency)
+    {
+        $this->currency = strtolower( $currency );
 
         return $this;
     }
