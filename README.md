@@ -1,4 +1,10 @@
 # HitPay Payment Gateway
+
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/everhard/hitpay-payment-gateway?label=Version&style=for-the-badge)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/everhard/hitpay-payment-gateway?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues-raw/everhard/hitpay-payment-gateway?style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/everhard/hitpay-payment-gateway?style=for-the-badge)
+
 **HitPay Payment Gateway** plugin for [WooCommerce](https://woocommerce.com). It allows HitPay merchants to accept payments using:
 - PayNow QR.
 - Cards.
