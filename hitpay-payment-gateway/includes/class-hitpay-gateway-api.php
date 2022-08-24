@@ -10,6 +10,7 @@ class HitPay_Gateway_API {
 
     const TIMEZONE = 'Asia/Singapore';
 
+    const RESPONSE_CODE_OK      = 200;
     const RESPONSE_CODE_CREATED = 201;
 
     /**

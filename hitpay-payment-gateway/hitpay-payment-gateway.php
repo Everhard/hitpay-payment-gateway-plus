@@ -90,22 +90,24 @@ function initiate_hitpay_payment_gateway() {
                 [ $this->gateway, 'process_admin_options' ] ) ;
 
             /**
+             * Add a handler for scheduled subscription payments.
+             */
+            add_action( 'woocommerce_scheduled_subscription_payment_' . $this->gateway->id,
+            [ $this->gateway, 'process_scheduled_subscription_payment' ], 10, 2 );
+
+            /**
              * Add a handler for webhook requests from HitPay API
              * It's used for regular payments.
              */
-            add_action(
-                'woocommerce_api_hitpay-regular-payments',
-                [ $this->gateway, 'handle_webhook_regular_payment' ]
-            );
+            add_action( 'woocommerce_api_hitpay-regular-payments',
+                [ $this->gateway, 'handle_webhook_regular_payment' ] );
 
             /**
              * Add a handler for webhook requests from HitPay API
              * It's used for recurring payments.
              */
-            add_action(
-                'woocommerce_api_hitpay-recurring-payments',
-                [ $this->gateway, 'handle_webhook_recurring_payment' ]
-            );
+            add_action( 'woocommerce_api_hitpay-recurring-payments',
+                [ $this->gateway, 'handle_webhook_recurring_payment' ] );
 
         }
 

@@ -344,16 +344,59 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
              */
             $order->add_meta_data( '_hitpay_payment_id', $data[ 'payment_id' ], true );
 
-            /**
-             * We need this meta for automatic recurring payments.
-             */
-            $order->add_meta_data( '_hitpay_recurring_billing_id', $data[ 'recurring_billing_id' ], true );
+            $subscriptions = wcs_get_subscriptions_for_order( $order );
+
+            foreach ( $subscriptions as $subscription ) {
+
+                /**
+                 * We need this meta for recurring payments.
+                 */
+                add_post_meta(
+                    $subscription->get_id(),
+                    '_hitpay_recurring_billing_id',
+                    $data[ 'recurring_billing_id' ],
+                    true
+                );
+            }
 
             $order->payment_complete();
         }
 
         if ( 'failed' == $data[ 'status' ] ) {
             $order->update_status( 'failed' );
+        }
+    }
+
+    /**
+     * Process a scheduled subscription payment.
+     *
+     * @param float    $amount  The amount to charge.
+     * @param WC_Order $order   A WC_Order object created to record the renewal payment.
+     */
+    public function process_scheduled_subscription_payment( $amount, $order ) {
+
+        $recurring_billing_id = $order->get_meta( '_hitpay_recurring_billing_id' );
+
+        if ( ! $recurring_billing_id ) {
+            $order->update_status( 'failed' );
+            return;
+        }
+
+        $gateway_api = new HitPay_Gateway_API(
+            $this->get_option( 'api_key' ),
+            $this->get_option( 'api_salt' )
+        );
+
+        $recurring_billing_request = new HitPay_Recurring_Billing_Request( $gateway_api );
+
+        $response = $recurring_billing_request
+            ->set_recurring_billing_id( $recurring_billing_id )
+            ->set_amount( $amount )
+            ->set_currency( $order->get_currency() )
+            ->charge();
+
+        if ( $response && $response->status == 'succeeded' ) {
+            $order->payment_complete();
         }
     }
 

@@ -18,6 +18,13 @@ class HitPay_Recurring_Billing_Request {
     public $plan_id;
 
     /**
+     * Recurring billing ID.
+     *
+     * @var string
+     */
+    public $recurring_billing_id;
+
+    /**
      * Customer email.
      *
      * @var string
@@ -149,11 +156,42 @@ class HitPay_Recurring_Billing_Request {
     }
 
     /**
+     * Charge the saved card.
+     *
+     * @return false|mixed
+     */
+    public function charge() {
+
+        $endpoint = $this->gateway_api->get_endpoint_prefix()
+            . 'charge/recurring-billing/' . $this->recurring_billing_id;
+
+        $this->last_response = wp_remote_post( $endpoint, [
+            'headers' => $this->gateway_api->get_headers(),
+            'body' => [
+                'amount'    => $this->amount,
+                'currency'  => $this->currency,
+            ],
+        ] );
+
+        return $this->fetch_response_data();
+    }
+
+    /**
      * @param string $plan_id
      */
     public function set_plan_id($plan_id)
     {
         $this->plan_id = $plan_id;
+
+        return $this;
+    }
+
+    /**
+     * @param string $recurring_billing_id
+     */
+    public function set_recurring_billing_id( $recurring_billing_id )
+    {
+        $this->recurring_billing_id = $recurring_billing_id;
 
         return $this;
     }
@@ -275,8 +313,12 @@ class HitPay_Recurring_Billing_Request {
      */
     private function fetch_response_data() {
 
-        if ( HitPay_Gateway_API::RESPONSE_CODE_CREATED
-            != wp_remote_retrieve_response_code( $this->last_response ) ) {
+        $response_code = wp_remote_retrieve_response_code( $this->last_response );
+
+        if ( ! in_array( $response_code, [
+            HitPay_Gateway_API::RESPONSE_CODE_OK,
+            HitPay_Gateway_API::RESPONSE_CODE_CREATED,
+        ] ) ) {
             return false;
         }
 
