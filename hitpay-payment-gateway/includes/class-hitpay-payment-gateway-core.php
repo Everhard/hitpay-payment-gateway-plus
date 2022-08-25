@@ -48,12 +48,13 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         /**
          * Gateway title.
          */
-        $this->method_title = __('HitPay Payment Gateway', 'hitpay-payment-gateway');
+        $this->method_title = __( 'HitPay Payment Gateway', 'hitpay-payment-gateway' );
 
         /**
          * Gateway description.
          */
-        $this->method_description = '';
+        $this->method_description = __( 'Accept PayNow QR, Cards, Apple Pay, Google Pay, WeChatPay, AliPay, GrabPay, and other popular payment methods.', 'hitpay-payment-gateway' ) . "\n"
+            . __( 'Visit <a href="https://www.hitpayapp.com">hitpayapp.com</a> for more details.', 'hitpay-payment-gateway' );
 
         /**
          * Initialise settings form fields.
@@ -95,6 +96,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
      *
      * @param int $order_id Order ID.
      * @return array
+     * @throws Exception
      */
     public function process_payment( $order_id ) {
 
