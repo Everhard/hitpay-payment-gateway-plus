@@ -587,6 +587,34 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         return $settings;
     }
 
+
+    /**
+     * Show custom payment logos.
+     *
+     * @param $icon_html    string HTML with `<img>` tags.
+     * @param $gateway_id   string Gateway ID.
+     * @return string
+     */
+    public function show_custom_payment_logos( $icon_html, $gateway_id ) {
+
+        if ( $this->id != $gateway_id || ! $payment_logos = $this->get_option( 'payment_logos' ) ) {
+            return $icon_html;
+        }
+
+        $icon_html = '';
+
+        foreach ( $payment_logos as $slug ) {
+
+            $full_logo_path = plugin_dir_url( __DIR__ ) . "assets/images/payment-logos/$slug.svg";
+
+            $description = $this->form_fields[ 'payment_logos' ][ 'options' ][ $slug ];
+
+            $icon_html .= "<img src='$full_logo_path' alt='$description' title='$description' />";
+        }
+
+        return $icon_html;
+    }
+
     /**
      * Check if the Subscriptions extension is activated.
      *

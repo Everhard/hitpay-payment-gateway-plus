@@ -66,28 +66,32 @@ function initiate_hitpay_payment_gateway() {
          */
         public function __construct() {
 
-            // Load all the necessary dependencies (libraries, classes, files).
+            /**
+             * Load all the necessary dependencies (libraries, classes, files).
+             */
             $this->load_dependencies();
 
             /**
-             * Registering the gateway.
-             * Adding a filter for the "woocommerce_payment_gateways" hook.
+             * Register the gateway in WooCommerce.
              */
             add_filter( 'woocommerce_payment_gateways', [ $this, 'filter_woocommerce_payment_gateways' ] );
 
             /**
-             * Validating admin options.
-             * Adding an action for the "woocommerce_settings_api_sanitized_fields_{ID}" hook.
+             * Validate the admin options.
              */
             add_action( 'woocommerce_settings_api_sanitized_fields_' . $this->gateway->id,
                 [ $this->gateway, 'validate_options' ] );
 
             /**
-             * Saving admin options.
-             * Adding an action for the "woocommerce_update_options_payment_gateways_{ID}" hook.
+             * Save the admin options.
              */
             add_action( 'woocommerce_update_options_payment_gateways_' . $this->gateway->id,
                 [ $this->gateway, 'process_admin_options' ] ) ;
+
+            /**
+             * Show custom payment logos.
+             */
+            add_filter( 'woocommerce_gateway_icon', [ $this->gateway, 'show_custom_payment_logos' ], 10, 2 );
 
             /**
              * Add a handler for scheduled subscription payments.
@@ -96,15 +100,13 @@ function initiate_hitpay_payment_gateway() {
             [ $this->gateway, 'process_scheduled_subscription_payment' ], 10, 2 );
 
             /**
-             * Add a handler for webhook requests from HitPay API
-             * It's used for regular payments.
+             * Add a handler for webhook requests from HitPay API (regular payments).
              */
             add_action( 'woocommerce_api_hitpay-regular-payments',
                 [ $this->gateway, 'handle_webhook_regular_payment' ] );
 
             /**
-             * Add a handler for webhook requests from HitPay API
-             * It's used for recurring payments.
+             * Add a handler for webhook requests from HitPay API (recurring payments).
              */
             add_action( 'woocommerce_api_hitpay-recurring-payments',
                 [ $this->gateway, 'handle_webhook_recurring_payment' ] );
