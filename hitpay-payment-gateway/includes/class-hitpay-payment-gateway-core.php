@@ -129,14 +129,9 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         $customer_full_name = $order->get_billing_first_name() . ' '
             . $order->get_billing_last_name();
 
-        $gateway_api = new HitPay_Gateway_API(
-            $this->get_option( 'api_key' ),
-            $this->get_option( 'api_salt' )
-        );
-
         $webhook_url = add_query_arg( 'wc-api', 'hitpay-regular-payments', site_url( '/' ) );
 
-        $payment_request = new HitPay_Payment_Request( $gateway_api );
+        $payment_request = new HitPay_Payment_Request( $this->get_gateway_api() );
 
         $response = $payment_request
             ->set_amount( $order->get_total() )
@@ -177,15 +172,10 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
      */
     public function process_subscription_payment( WC_Order $order ) {
 
-        $gateway_api = new HitPay_Gateway_API(
-            $this->get_option( 'api_key' ),
-            $this->get_option( 'api_salt' )
-        );
-
         $customer_full_name = $order->get_billing_first_name() . ' '
             . $order->get_billing_last_name();
 
-        $recurring_billing_request = new HitPay_Recurring_Billing_Request( $gateway_api );
+        $recurring_billing_request = new HitPay_Recurring_Billing_Request( $this->get_gateway_api() );
 
         $subscription_starts_from = new DateTime(
             'now',
@@ -384,12 +374,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             return;
         }
 
-        $gateway_api = new HitPay_Gateway_API(
-            $this->get_option( 'api_key' ),
-            $this->get_option( 'api_salt' )
-        );
-
-        $recurring_billing_request = new HitPay_Recurring_Billing_Request( $gateway_api );
+        $recurring_billing_request = new HitPay_Recurring_Billing_Request( $this->get_gateway_api() );
 
         $response = $recurring_billing_request
             ->set_recurring_billing_id( $recurring_billing_id )
@@ -427,12 +412,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             return false;
         }
 
-        $gateway_api = new HitPay_Gateway_API(
-            $this->get_option( 'api_key' ),
-            $this->get_option( 'api_salt' )
-        );
-
-        $refund_request = new HitPay_Refund_Request( $gateway_api );
+        $refund_request = new HitPay_Refund_Request( $this->get_gateway_api() );
 
         $response = $refund_request
             ->set_amount( $amount )
@@ -619,6 +599,22 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         }
 
         return false;
+    }
+
+    /**
+     * Get gateway API instance.
+     *
+     * @return HitPay_Gateway_API
+     */
+    private function get_gateway_api() {
+
+        $live_mode = 'yes' == $this->get_option( 'live_mode' );
+
+        return new HitPay_Gateway_API(
+            $this->get_option( 'api_key' ),
+            $this->get_option( 'api_salt' ),
+            $live_mode
+        );
     }
 
     /**
