@@ -658,7 +658,13 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 
         $order_statuses = [];
 
-        $skipped_order_statuses = [ 'wc-cancelled', 'wc-refunded', 'wc-failed', 'wc-on-hold' ];
+        $skipped_order_statuses = [
+            'wc-cancelled',
+            'wc-refunded',
+            'wc-failed',
+            'wc-on-hold',
+            'wc-pending'
+        ];
 
         foreach ( wc_get_order_statuses() as $slug => $text ) {
             if ( ! in_array( $slug, $skipped_order_statuses) ) {
