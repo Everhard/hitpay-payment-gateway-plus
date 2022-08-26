@@ -133,8 +133,7 @@ class HitPay_Recurring_Billing_Request {
 
         $endpoint = $this->gateway_api->get_endpoint_prefix() . 'recurring-billing';
 
-        $this->last_response = wp_remote_post( $endpoint, [
-            'headers' => $this->gateway_api->get_headers(),
+        $this->last_response = wp_remote_post( $endpoint, array_merge( $this->gateway_api->get_options(), [
             'body' => [
                 'plan_id'               => $this->plan_id,
                 'customer_email'        => $this->customer_email,
@@ -150,7 +149,7 @@ class HitPay_Recurring_Billing_Request {
                 'send_email'            => $this->send_email            ? 'true' : '',
 
             ],
-        ] );
+        ] ) );
 
         return $this->fetch_response_data();
     }
@@ -165,13 +164,12 @@ class HitPay_Recurring_Billing_Request {
         $endpoint = $this->gateway_api->get_endpoint_prefix()
             . 'charge/recurring-billing/' . $this->recurring_billing_id;
 
-        $this->last_response = wp_remote_post( $endpoint, [
-            'headers' => $this->gateway_api->get_headers(),
+        $this->last_response = wp_remote_post( $endpoint, array_merge( $this->gateway_api->get_options(), [
             'body' => [
                 'amount'    => $this->amount,
                 'currency'  => $this->currency,
             ],
-        ] );
+        ] ) );
 
         return $this->fetch_response_data();
     }

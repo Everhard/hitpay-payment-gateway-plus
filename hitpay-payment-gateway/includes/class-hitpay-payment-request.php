@@ -122,12 +122,16 @@ class HitPay_Payment_Request {
         $this->gateway_api = $gateway_api;
     }
 
+    /**
+     * Create and sent a payment request.
+     *
+     * @return false|mixed
+     */
     public function create() {
 
         $endpoint = $this->gateway_api->get_endpoint_prefix() . 'payment-requests';
 
-        $this->last_response = wp_remote_post( $endpoint, [
-            'headers' => $this->gateway_api->get_headers(),
+        $this->last_response = wp_remote_post( $endpoint, array_merge( $this->gateway_api->get_options(), [
             'body' => [
                 'amount'                    => $this->amount,
                 'payment_methods'           => $this->payment_methods,
@@ -142,7 +146,7 @@ class HitPay_Payment_Request {
                 'expiry_date'               => $this->expiry_date,
                 'send_email'                => $this->send_email                ? 'true' : '',
             ],
-        ] );
+        ] ) );
 
         return $this->fetch_response_data();
     }

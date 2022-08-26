@@ -13,6 +13,8 @@ class HitPay_Gateway_API {
     const RESPONSE_CODE_OK      = 200;
     const RESPONSE_CODE_CREATED = 201;
 
+    const HTTP_REQUEST_TIMEOUT  = 15; // seconds
+
     /**
      * Endpoint prefix to differ live mode from sandbox mode.
      *
@@ -35,11 +37,11 @@ class HitPay_Gateway_API {
     public $api_salt;
 
     /**
-     * Headers to be sent with each request.
+     * HTTP options to be sent with each request.
      *
      * @var array
      */
-    public $headers;
+    public $options;
 
     /**
      * Creating a gateway API instance.
@@ -56,10 +58,13 @@ class HitPay_Gateway_API {
         $this->api_key  = $api_key;
         $this->api_salt = $api_salt;
 
-        $this->headers = [
-            'Content-Type'          => 'application/x-www-form-urlencoded',
-            'X-BUSINESS-API-KEY'    => $this->api_key,
-            'X-Requested-With'      => 'XMLHttpRequest',
+        $this->options = [
+            'headers' => [
+                'Content-Type'          => 'application/x-www-form-urlencoded',
+                'X-BUSINESS-API-KEY'    => $this->api_key,
+                'X-Requested-With'      => 'XMLHttpRequest',
+            ],
+            'timeout' => self::HTTP_REQUEST_TIMEOUT,
         ];
     }
 
@@ -74,12 +79,12 @@ class HitPay_Gateway_API {
     }
 
     /**
-     * Getting headers for the API requests.
+     * Getting options for the HTTP requests.
      *
      * @return array
      */
-    public function get_headers() {
+    public function get_options() {
 
-        return $this->headers;
+        return $this->options;
     }
 }

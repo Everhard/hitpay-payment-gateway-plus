@@ -398,8 +398,8 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
      * @param  string     $reason   Refund reason.
      * @return boolean              True or false based on success, or a WP_Error object.
      */
-    public function process_refund( $order_id, $amount = null, $reason = '' )
-    {
+    public function process_refund( $order_id, $amount = null, $reason = '' ) {
+
         $order = wc_get_order( $order_id );
 
         if ( 0 == $amount || ! $order ) {

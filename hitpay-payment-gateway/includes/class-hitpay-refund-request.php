@@ -43,13 +43,12 @@ class HitPay_Refund_Request {
 
         $endpoint = $this->gateway_api->get_endpoint_prefix() . 'refund';
 
-        $this->last_response = wp_remote_post( $endpoint, [
-            'headers' => $this->gateway_api->get_headers(),
+        $this->last_response = wp_remote_post( $endpoint, array_merge( $this->gateway_api->get_options(), [
             'body' => [
                 'amount'        => $this->amount,
                 'payment_id'    => $this->payment_id,
             ],
-        ] );
+        ] ) );
 
         return $this->fetch_response_data();
     }
