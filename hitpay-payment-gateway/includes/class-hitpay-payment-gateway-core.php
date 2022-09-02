@@ -456,7 +456,6 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
                 'title'         => __( 'Description', 'hitpay-payment-gateway' ),
                 'type'          => 'textarea',
                 'description'   => __( 'Instructions that the customer will see on your checkout.', 'hitpay-payment-gateway' ),
-                'default'       => $this->method_description,
                 'desc_tip'      => true,
             ],
             'live_mode' => [
