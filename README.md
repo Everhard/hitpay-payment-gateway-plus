@@ -1,11 +1,11 @@
-# HitPay Payment Gateway
+# HitPay Payment Gateway Plus
 
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/everhard/hitpay-payment-gateway?label=Version&style=for-the-badge)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/everhard/hitpay-payment-gateway?style=for-the-badge)
-![GitHub issues](https://img.shields.io/github/issues-raw/everhard/hitpay-payment-gateway?style=for-the-badge)
-![GitHub](https://img.shields.io/github/license/everhard/hitpay-payment-gateway?style=for-the-badge)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/everhard/hitpay-payment-gateway-plus?label=Version&style=for-the-badge)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/everhard/hitpay-payment-gateway-plus?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues-raw/everhard/hitpay-payment-gateway-plus?style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/everhard/hitpay-payment-gateway-plus?style=for-the-badge)
 
-**HitPay Payment Gateway** plugin for [WooCommerce](https://woocommerce.com). It allows HitPay merchants to accept payments using:
+**HitPay Payment Gateway Plus** plugin for [WooCommerce](https://woocommerce.com). It allows HitPay merchants to accept payments using:
 - PayNow QR.
 - Cards.
 - Apple Pay.
