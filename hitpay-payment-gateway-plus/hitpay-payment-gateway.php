@@ -11,7 +11,7 @@
  * Plugin Name:             HitPay Payment Gateway Plus
  * Plugin URI:              https://wordpress.org/plugins/hitpay-payment-gateway-plus/
  * Description:             HitPay Payment Gateway Plus plugin allows your WooCommerce store to accept PayNow QR, Cards, Apple Pay, Google Pay, WeChatPay, AliPay and GrabPay Payments.
- * Version:                 1.0
+ * Version:                 1.0.1
  * Requires at least:       4.0
  * Tested up to:            5.8.2
  * WC requires at least:    2.4
@@ -75,6 +75,11 @@ function initiate_hitpay_payment_gateway() {
              * Register the gateway in WooCommerce.
              */
             add_filter( 'woocommerce_payment_gateways', [ $this, 'filter_woocommerce_payment_gateways' ] );
+
+            /**
+             * Adds the action links displayed for the plugin in the Plugins list table.
+             */
+            add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), [ $this, 'filter_plugin_action_links' ] );
 
             /**
              * Validate the admin options.
@@ -156,6 +161,29 @@ function initiate_hitpay_payment_gateway() {
             $methods[] = 'HitPay_Payment_Gateway_Core';
 
             return $methods;
+        }
+
+        /**
+         * Adds the action links displayed for the plugin in the Plugins list table.
+         *
+         * @param $links
+         * @return array
+         */
+        public function filter_plugin_action_links( $links ) {
+
+            $setting_page_url = add_query_arg( [
+                'page'      => 'wc-settings',
+                'tab'       => 'checkout',
+                'section'   => $this->gateway->id,
+            ], admin_url( 'admin.php' ) );
+
+            $action_links = [
+                'settings' => "<a href='$setting_page_url' aria-label='"
+                    . esc_attr__( 'View HitPay Payment Gateway settings', 'hitpay-payment-gateway' ) . "'>"
+                    . esc_html__( 'Settings', 'hitpay-payment-gateway' ) . "</a>",
+            ];
+
+            return array_merge( $action_links, $links );
         }
     }
 
