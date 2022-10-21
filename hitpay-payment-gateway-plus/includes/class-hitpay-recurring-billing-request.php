@@ -18,6 +18,13 @@ class HitPay_Recurring_Billing_Request {
     public $plan_id;
 
     /**
+     * Subscription plan name.
+     *
+     * @var string
+     */
+    public $name;
+
+    /**
      * Recurring billing ID.
      *
      * @var string
@@ -136,6 +143,7 @@ class HitPay_Recurring_Billing_Request {
         $this->last_response = wp_remote_post( $endpoint, array_merge( $this->gateway_api->get_options(), [
             'body' => [
                 'plan_id'               => $this->plan_id,
+                'name'                  => $this->name,
                 'customer_email'        => $this->customer_email,
                 'customer_name'         => $this->customer_name,
                 'start_date'            => $this->start_date,
@@ -180,6 +188,16 @@ class HitPay_Recurring_Billing_Request {
     public function set_plan_id($plan_id)
     {
         $this->plan_id = $plan_id;
+
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function set_name($name)
+    {
+        $this->name = $name;
 
         return $this;
     }
