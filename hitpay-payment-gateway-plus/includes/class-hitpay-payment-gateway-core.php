@@ -201,6 +201,17 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             return [ 'result' => 'error' ];
         }
 
+		/**
+		 * Save the recurring billing ID.
+		 * It's used for future automatic payments.
+		 */
+		add_post_meta(
+			$order->get_id(),
+			'_hitpay_recurring_billing_id',
+			$response->id,
+			true
+		);
+
         WC()->cart->empty_cart();
 
         return [
@@ -359,6 +370,57 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             $order->update_status( 'failed' );
         }
     }
+
+	/**
+	 * Process the first recurring payment
+	 * (after adding card information).
+	 *
+	 * @param integer $order_id Order ID.
+	 */
+	public function handle_first_recurring_payment( $order_id ) {
+
+		$params = [ 'order-received', 'key', 'type', 'reference', 'status' ];
+
+		// Skip processing if parameters are absent:
+		if ( array_diff_key( array_flip( $params ), $_GET ) ) {
+			return false;
+		}
+
+		// We process only recurring payments:
+		if ( $_GET[ 'type' ] != 'recurring' ||  $_GET[ 'status' ] != 'active' ) {
+			return false;
+		}
+
+		$order = wc_get_order( $order_id );
+
+		// Skip if the order is already paid:
+		if ( ! $order || ! $order->needs_payment() ) {
+			return false;
+		}
+
+		// Security check:
+		if ( $_GET[ 'key' ] != $order->get_order_key() ) {
+			return false;
+		}
+
+		$recurring_billing_id = $order->get_meta( '_hitpay_recurring_billing_id' );
+
+		if ( ! $recurring_billing_id ) {
+			return false;
+		}
+
+		$recurring_billing_request = new HitPay_Recurring_Billing_Request( $this->get_gateway_api() );
+
+		$response = $recurring_billing_request
+			->set_recurring_billing_id( $recurring_billing_id )
+			->set_amount( $order->get_total() )
+			->set_currency( $order->get_currency() )
+			->charge();
+
+		if ( $response && $response->status == 'succeeded' ) {
+			$order->payment_complete();
+		}
+	}
 
     /**
      * Process a scheduled subscription payment.

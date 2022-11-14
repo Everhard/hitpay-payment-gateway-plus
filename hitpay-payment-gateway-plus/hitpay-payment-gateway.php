@@ -116,6 +116,11 @@ function initiate_hitpay_payment_gateway() {
             add_action( 'woocommerce_api_hitpay-recurring-payments',
                 [ $this->gateway, 'handle_webhook_recurring_payment' ] );
 
+			/**
+			 * Add a handler for the first recurring payment (after adding card information).
+			 */
+			add_action('woocommerce_thankyou_' . $this->gateway->id,
+				[ $this->gateway, 'handle_first_recurring_payment' ] );
         }
 
         /**
