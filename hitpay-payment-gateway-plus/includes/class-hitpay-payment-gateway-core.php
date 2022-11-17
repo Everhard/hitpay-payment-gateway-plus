@@ -30,9 +30,6 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             'subscription_amount_changes',
             'subscription_date_changes',
             'multiple_subscriptions',
-            'subscription_payment_method_change',
-            'subscription_payment_method_change_customer',
-            'subscription_payment_method_change_admin',
         ];
 
         /**
