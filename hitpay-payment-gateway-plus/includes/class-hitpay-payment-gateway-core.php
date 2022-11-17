@@ -276,7 +276,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
              */
             $order->add_meta_data( '_hitpay_payment_id', $data[ 'payment_id' ], true );
 
-            $order->payment_complete();
+			$this->payment_complete( $order );
         }
 
         if ( 'failed' == $data[ 'status' ] ) {
@@ -360,7 +360,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
                 );
             }
 
-            $order->payment_complete();
+			$this->payment_complete( $order );
         }
 
         if ( 'failed' == $data[ 'status' ] ) {
@@ -415,7 +415,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 			->charge();
 
 		if ( $response && $response->status == 'succeeded' ) {
-			$order->payment_complete();
+			$this->payment_complete( $order );
 		}
 	}
 
@@ -443,7 +443,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             ->charge();
 
         if ( $response && $response->status == 'succeeded' ) {
-            $order->payment_complete();
+			$this->payment_complete( $order );
         }
     }
 
@@ -646,6 +646,24 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
         return $settings;
     }
 
+	/**
+	 * Method that is called after a successful payment.
+	 *
+	 * We use it to be able to set a custom status
+	 * after completing a payment.
+	 *
+	 * @param $order WC_Order
+	 * @return void
+	 */
+	public function payment_complete( $order ) {
+
+		$order->payment_complete();
+
+		if ( $custom_status = $this->get_option( 'status_after_payment' ) ) {
+
+			$order->update_status( $custom_status, 'Status was changed according to the gateway settings.' );
+		}
+	}
 
     /**
      * Show custom payment logos.
@@ -715,7 +733,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
      */
     private function get_order_statuses() {
 
-        $order_statuses = [];
+		$order_statuses = [ 'By default' ];
 
         $skipped_order_statuses = [
             'wc-cancelled',
@@ -727,7 +745,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 
         foreach ( wc_get_order_statuses() as $slug => $text ) {
             if ( ! in_array( $slug, $skipped_order_statuses) ) {
-                $order_statuses[ $slug ] = $text;
+                $order_statuses[ $slug ] = "⇨ $text";
             }
         }
 
