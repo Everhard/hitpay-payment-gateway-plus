@@ -130,7 +130,7 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 
         $payment_request = new HitPay_Payment_Request( $this->get_gateway_api() );
 
-        $response = $payment_request
+        $payment_request
             ->set_amount( $order->get_total() )
             ->set_currency( $order->get_currency() )
             ->set_name( $customer_full_name )
@@ -138,8 +138,22 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
             ->set_purpose( get_bloginfo() )
             ->set_reference_number( $order->get_order_number() )
             ->set_redirect_url( $this->get_return_url( $order ) )
-            ->set_webhook( $webhook_url )
-            ->create();
+            ->set_webhook( $webhook_url );
+
+		/**
+		 * Payment link TTL (time-to-live):
+		 */
+		if ( "yes" == $this->get_option( 'payment_link_expires' )
+			&& $payment_link_ttl = $this->get_option( 'payment_link_ttl' ) ) {
+
+			$expire_date = new DateTime( 'now', new DateTimeZone( HitPay_Gateway_API::TIMEZONE ) );
+
+			$expire_date->modify( "+" . intval( $payment_link_ttl ) . " minutes" );
+
+			$payment_request->set_expiry_date( $expire_date->format( 'Y-m-d H:i:s' ) );
+		}
+
+		$response = $payment_request->create();
 
         if ( ! $response || $response->status != 'pending' ) {
             return [ 'result' => 'error' ];

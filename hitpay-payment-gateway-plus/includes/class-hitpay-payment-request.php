@@ -90,7 +90,7 @@ class HitPay_Payment_Request {
     /**
      * Expiry date.
      *
-     * Time after which the payment link will be expired(time in SGT).
+     * Time after which the payment link will be expired (time in SGT).
      * Applicable for repeated payments. Default is null.
      *
      * @var string
