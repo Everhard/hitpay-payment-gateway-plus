@@ -216,8 +216,10 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 		 * Save the recurring billing ID.
 		 * It's used for future automatic payments.
 		 */
+		$subscription = current( wcs_get_subscriptions_for_order( $order ) );
+
 		add_post_meta(
-			$order->get_id(),
+			$subscription->get_id(),
 			'_hitpay_recurring_billing_id',
 			$response->id,
 			true
@@ -359,20 +361,14 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
              */
             $order->add_meta_data( '_hitpay_payment_id', $data[ 'payment_id' ], true );
 
-            $subscriptions = wcs_get_subscriptions_for_order( $order );
+			$subscription = current( wcs_get_subscriptions_for_order( $order ) );
 
-            foreach ( $subscriptions as $subscription ) {
-
-                /**
-                 * We need this meta for recurring payments.
-                 */
-                add_post_meta(
-                    $subscription->get_id(),
-                    '_hitpay_recurring_billing_id',
-                    $data[ 'recurring_billing_id' ],
-                    true
-                );
-            }
+			add_post_meta(
+				$subscription->get_id(),
+				'_hitpay_recurring_billing_id',
+				$data[ 'recurring_billing_id' ],
+				true
+			);
 
 			$this->payment_complete( $order );
         }
@@ -414,7 +410,9 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 			return false;
 		}
 
-		$recurring_billing_id = $order->get_meta( '_hitpay_recurring_billing_id' );
+		$subscription = current( wcs_get_subscriptions_for_order( $order ) );
+
+		$recurring_billing_id = $subscription->get_meta( '_hitpay_recurring_billing_id' );
 
 		if ( ! $recurring_billing_id ) {
 			return false;
