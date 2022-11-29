@@ -195,8 +195,10 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 
         $webhook_url = add_query_arg( 'wc-api', 'hitpay-recurring-payments', site_url( '/' ) );
 
+		$subscription = current( wcs_get_subscriptions_for_order( $order ) );
+
         $response = $recurring_billing_request
-            ->set_name( 'Subscription #' . $order->get_order_number() )
+            ->set_name( 'Subscription #' . $subscription->get_order_number() )
             ->set_amount( $order->get_total() )
             ->set_webhook( $webhook_url )
             ->set_currency( $order->get_currency() )
@@ -216,8 +218,6 @@ class HitPay_Payment_Gateway_Core extends WC_Payment_Gateway {
 		 * Save the recurring billing ID.
 		 * It's used for future automatic payments.
 		 */
-		$subscription = current( wcs_get_subscriptions_for_order( $order ) );
-
 		add_post_meta(
 			$subscription->get_id(),
 			'_hitpay_recurring_billing_id',
