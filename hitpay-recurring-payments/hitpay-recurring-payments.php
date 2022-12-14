@@ -1,17 +1,17 @@
 <?php
 /**
- * HitPay Payment Gateway Plus
+ * HitPay Recurring Payments
  *
- * @package                 HitPayPaymentGatewayPlus
+ * @package                 HitPayRecurringPayments
  * @author                  HitPay Payment Solutions Pte Ltd
- * @link                    https://github.com/hit-pay/hitpay-payment-gateway-plus
+ * @link                    https://github.com/hit-pay/woocommerce-recurring
  * @copyright               2022 HitPay Payment Solutions Pte Ltd
  *
  * @wordpress-plugin
- * Plugin Name:             HitPay Payment Gateway Plus
- * Plugin URI:              https://wordpress.org/plugins/hitpay-payment-gateway-plus/
- * Description:             HitPay Payment Gateway Plus plugin allows your WooCommerce store to accept PayNow QR, Cards, Apple Pay, Google Pay, WeChatPay, AliPay and GrabPay Payments.
- * Version:                 1.0.1
+ * Plugin Name:             HitPay Recurring Payments
+ * Plugin URI:              https://wordpress.org/plugins/hitpay-recurring-payments/
+ * Description:             HitPay Recurring Payments plugin allows your WooCommerce store to accept PayNow QR, Cards, Apple Pay, Google Pay, WeChatPay, AliPay and GrabPay Payments.
+ * Version:                 1.0.0
  * Requires at least:       4.0
  * Tested up to:            5.8.2
  * WC requires at least:    2.4
@@ -22,7 +22,7 @@
  * Developer:               Andrew Dorokhov
  * Developer URI:           https://dorokhov.dev
  * Text Domain:             hitpay-payment-gateway
- * GitHub Plugin URI:       https://github.com/hit-pay/hitpay-payment-gateway-plus
+ * GitHub Plugin URI:       https://github.com/hit-pay/woocommerce-recurring
  * GitHub Branch:           master
  */
 
